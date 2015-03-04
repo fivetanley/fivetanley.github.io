@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js - The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+
+        <section>
+          <h1> Ember CLI Migrator</h1>
+        </section>
+
+        <section>
+          <h1>@fivetanley</h1>
+
+          <ul>
+            <li>Ember Release Team</li>
+          </ul>
+        </section>
+
+        <section>
+          <div>
+            <img src="images/tom.jpg" alt="Tom Dale"/>
+          </div>
+          <p>"You should begin moving your app to Ember CLI as soon as possible."</p>
+          <p>
+            <small>Thanks Jeremy Green(<a href="https://twitter.com/jagthedrummer">@jagthedrummer</a>) for the photo</small>
+          </p>
+        </section>
+
+        <section>
+          <h1>Migrating is a LOT of work</h1>
+        </section>
+
+        <section>
+        <ul>
+          <li>Probably more than 1 sprint (we're all working on ambitious apps right?)</li>
+          <li>Takes up a lot of emotional energy</li>
+          <li>Takes up time that you could be using to ship features.</li>
+        </ul>
+        </section>
+
+        <section>
+          <h1>Computers <strong>love</strong> doing boring work</h1>
+        </section>
+
+        <section>
+          <h1>Enter Recast</h1>
+          <a href="https://github.com/benjamn/recast">https://github.com/benjamn/recast</a>
+        </section>
+
+        <section>
+          <h1>Why is it cool?</h1>
+        </section>
+
+        <section>
+          <p>It takes this:</p>
+
+          <pre>
+            <code data-trim>
+App.PostsController = Ember.ObjectController.extend({
+
+});
+            </code>
+          </pre>
+        </section>
+
+        <section>
+          <p>into this</p>
+          <pre>
+            <code data-trim>
+{
+  "type": "AssignmentExpression",
+  "node": {
+    "left": "Ember"
+  }
+}
+            </code>
+          </pre>
+        </section>
+
+        <section>
+          <p>Because Ember believes in <strong>Convention over Configuration</strong> and <strong>Stability Without Stagnation</strong>,
+          building tools for moving you forward becomes dramatically simpler because we can make (mostly accurate) assumptions about your app
+          code without knowing anything about your business logic.</p>
+        </section>
+
+        <section>
+          <h1>Ember CLI Migrator</h1>
+          <p><a href="https://github.com/fivetanley/ember-cli-migrator">https://github.com/fivetanley/ember-cli-migrator</a>
+        </section>
+
+        <section>
+          <h1>Getting Started</h1>
+          <code>npm install -g ember-cli-migrator</code>
+        </section>
+
+        <section>
+          <h1>Goals</h1>
+          <ul>
+            <li>Convert "global" style apps to ES6</li>
+            <li>Get you 90% of the way there</li>
+            <li>Let the community make it better by running it and opening issues</li>
+          </ul>
+        </section>
+
+        <section>
+          <h1>Features</h1>
+          <ul>
+            <li>Maintains Git history via <code>git mv</code></li>
+            <li>Handles Multiple Controllers/Routes/etc in one file and moves them to their own file</li>
+          </ul>
+        </section>
+
+        <section>
+          <h1>Demo</h1>
+          <video autoplay loop data-autoplay class="stretch">
+            <source data-src="images/demo.mov" type="video/mp4"/>
+          </video>
+        </section>
+
+        <section>
+          <h1>Before</h1>
+          <pre>
+            <code data-trim>
+App.PixelateImageComponent = Ember.Component.extend({
+  value: 0,
+
+  performPixelation: Ember.observer("value", function() {
+    var amount = this.get("value") / 100;
+    if(!this.pixelate) {
+      this.pixelate = new Pixelate(this.$("img").get(0), {amount: amount});
+    } else {
+      this.pixelate.setAmount(amount).render();
+    }
+  }).on("didInsertElement"),
+
+  rerenderOnSrcChange: Ember.observer("src", function() {
+    var _this = this;
+    Ember.run.later(function() {
+      _this.pixelate = null;
+      _this.rerender();
+    }, 100);
+  })
+});
+          </code>
+        </pre>
+        </section>
+
+        <section>
+          <h1>After</h1>
+          <pre>
+            <code>
+import Ember from 'ember';
+
+var PixelateImageComponent = Ember.Component.extend({
+  value: 0,
+
+  performPixelation: Ember.observer("value", function() {
+    var amount = this.get("value") / 100;
+    if(!this.pixelate) {
+      this.pixelate = new Pixelate(this.$("img").get(0), {amount: amount});
+    } else {
+      this.pixelate.setAmount(amount).render();
+    }
+  }).on("didInsertElement"),
+
+  rerenderOnSrcChange: Ember.observer("src", function() {
+    var _this = this;
+    Ember.run.later(function() {
+      _this.pixelate = null;
+      _this.rerender();
+    }, 100);
+  })
+});
+
+export default PixelateImageComponent;
+            </code>
+          </pre>
+        </section>
+
+        <section>
+          <h1>Roadmap</h1>
+          <ul>
+            <li>SASS support</li>
+            <li>Handlebars Helpers (we could even update to HTMLBars syntax for you!)</li>
+            <li>Detecting popular Ember Addons like Ember Validations/Ember Easy Form and adding them to package.json</li>
+            <li>Adapt for 2.0 deprecations</li>
+          </ul>
+        </section>
+
+        <section>
+          <h1>CoffeeScript?</h1>
+        </section>
+
+        <section>
+          <h1>Pull Requests Welcome</h1>
+          <img src="images/trollface.jpg" alt="Trollface" />
+        </section>
+
+        <section>
+          <h1>Thanks</h1>
+          <ul>
+            <li>Igor Terzic</li>
+            <li>Tony Sherbondy</li>
+            <li>David Laird</li>
+            <li>Everyone who is testing and opening issues.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h1>Thanks</h1>
+          <ul>
+            <li>The Frontside (hiring!)</li>
+            <li>Spiceworks (hiring!)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h1>visit Vart.institute on the world wide web</h1>
+          <p>For something cooler</p>
+        </section>
+
+        <section>
+          <h1>That's All Folks!</h1>
+          <p><a href="https://twitter.com/fivetanley">@fivetanley</a></p>
+          <p>Want to work on open source and interesting client projects?</p>
+          <p><a href="https://twitter.com/thefrontside">@thefrontside</a></p>
+        </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
